@@ -17,14 +17,15 @@ if (!is_string($taller) || !array_key_exists($taller, $tarifas)) {
     $errores[] = 'El taller seleccionado no existe.';
 }
 
-$sesiones = is_string($sesionesTexto)
-    ? filter_var($sesionesTexto, FILTER_VALIDATE_INT, [
-        'options' => ['min_range' => 1, 'max_range' => 10]
-    ])
-    : false;
+$sesiones = is_numeric($sesionesTexto) ? (int) $sesionesTexto : false;
 
-if ($sesiones === false) {
-    $errores[] = 'Las sesiones deben ser un entero entre 1 y 10.';
+if (
+    $sesiones === false
+    || $sesiones != $sesionesTexto
+    || $sesiones < 1
+    || $sesiones > 10
+) {
+    $errores[] = 'Las sesiones deben ser un número entero entre 1 y 10.';
 }
 
 if (empty($errores)) {
@@ -40,13 +41,14 @@ if (empty($errores)) {
 <?php if (!empty($errores)): ?>
     <ul>
         <?php foreach ($errores as $error): ?>
-            <li><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></li>
+            <li><?= htmlspecialchars($error) ?></li>
         <?php endforeach; ?>
     </ul>
 <?php else: ?>
-    <p>Nombre: <?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') ?></p>
-    <p>Taller: <?= htmlspecialchars($taller, ENT_QUOTES, 'UTF-8') ?></p>
+    <p>Nombre: <?= htmlspecialchars($nombre) ?></p>
+    <p>Taller: <?= htmlspecialchars($taller) ?></p>
     <p>Sesiones: <?= $sesiones ?></p>
+    <p>Precio por sesión: <?= number_format($precio, 2, ',', '.') ?> €</p>
     <p>Importe inicial: <?= number_format($importe, 2, ',', '.') ?> €</p>
     <p>Descuento: <?= number_format($descuento, 2, ',', '.') ?> €</p>
     <p>Total: <?= number_format($total, 2, ',', '.') ?> €</p>
@@ -56,7 +58,7 @@ if (empty($errores)) {
 <ul>
     <?php foreach ($tarifas as $nombreTaller => $precio): ?>
         <li>
-            <?= htmlspecialchars($nombreTaller, ENT_QUOTES, 'UTF-8') ?>:
+            <?= htmlspecialchars($nombreTaller) ?>:
             <?= number_format($precio, 2, ',', '.') ?> € por sesión
         </li>
     <?php endforeach; ?>
